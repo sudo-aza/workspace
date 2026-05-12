@@ -1,0 +1,349 @@
+% sudodoc-toc.tex — Elegant TOC and sectioning system
+% Consistent with sudodoc-titlepage design language
+% Compile: lualatex sudodoc-toc.tex (run TWICE for TOC + overlays)
+\documentclass[12pt]{article}
+
+% ─── Packages ───
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{parskip}
+\usepackage{calc}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% ─── Fonts ───
+\setsansfont{Latin Modern Sans}
+\setmainfont{Latin Modern Roman}
+\setmonofont{Latin Modern Mono}
+
+% ─── Colors (matching title page) ───
+\definecolor{titleDark}{HTML}{1A1A2E}
+\definecolor{titleAccent}{HTML}{16213E}
+\definecolor{titleRule}{HTML}{0F3460}
+\definecolor{titleLight}{HTML}{E8E8E8}
+\definecolor{titleMid}{HTML}{888888}
+
+% ─── Geometry ───
+\geometry{
+  paper=a4paper,
+  top=30mm,
+  bottom=30mm,
+  left=30mm,
+  right=25mm,
+  headheight=15pt,
+}
+
+% ══════════════════════════════════════════════════════════
+% SECTIONING: Chapter, Section, Subsection styling
+% ══════════════════════════════════════════════════════════
+
+% ── Chapter-style headings (using \section as "chapters") ──
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{titleDark}}
+  {}{0pt}
+  {\vspace{6pt}%
+   \begin{tikzpicture}[baseline=(title.base)]
+     \node[anchor=west, inner sep=0pt] (title) {\insertsection};
+     \draw[titleRule, line width=1.2pt]
+       ([yshift=-3pt]title.south west) -- ([yshift=-3pt]title.south east);
+   \end{tikzpicture}%
+  }
+  [\vspace{2pt}]
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{titleRule}}
+  {}{0pt}
+  {\hspace{4pt}%
+   \tikz[baseline=(num.base)]{
+     \node[fill=titleRule, text=white, rounded corners=2pt,
+           inner xsep=6pt, inner ysep=2pt,
+           font=\footnotesize\bfseries] (num)
+       {\thesubsection};
+   }%
+   \hspace{6pt}\insertsubsection%
+  }
+  [\vspace{2pt}]
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{titleMid}}
+  {}{0pt}
+  {\hspace{14pt}{\color{titleRule}\textbullet}\hspace{8pt}\insertsubsubsection}
+  [\vspace{1pt}]
+
+% ── Section spacing ──
+\titlespacing{\section}{0pt}{24pt plus 4pt minus 2pt}{12pt plus 2pt minus 1pt}
+\titlespacing{\subsection}{0pt}{18pt plus 3pt minus 1pt}{8pt plus 1pt minus 1pt}
+\titlespacing{\subsubsection}{0pt}{12pt plus 2pt minus 1pt}{6pt}
+
+% ══════════════════════════════════════════════════════════
+% TOC: Table of Contents styling
+% ══════════════════════════════════════════════════════════
+
+% ── TOC Title ──
+\renewcommand{\contentsname}{\vspace*{-10pt}%
+  {\fontsize{24}{28}\selectfont\bfseries\color{titleDark}Contents}}
+
+% ── Section entries in TOC ──
+\titlecontents{section}[0pt]
+  {\addvspace{14pt}\fontsize{12}{14}\selectfont\bfseries\color{titleDark}}
+  {\thecontentslabel\hspace{10pt}}
+  {}
+  {\hspace{1em}%
+   \tikz[baseline=-0.5ex]{
+     \draw[titleRule!40, line width=0.5pt] (0,0) -- (3cm,0);
+     \node[anchor=west, font=\fontsize{10}{12}\selectfont\color{titleMid}]
+       at (3.2cm,0) {\thecontentspage};
+   }%
+  }
+  \addvspace{4pt}
+
+% ── Subsection entries in TOC ──
+\titlecontents{subsection}[16pt]
+  {\addvspace{6pt}\fontsize{11}{13}\selectfont\color{titleAccent}}
+  {\thecontentslabel\hspace{8pt}}
+  {}
+  {\hspace{1em}%
+   \tikz[baseline=-0.5ex]{
+     \draw[titleMid!40, line width=0.4pt] (0,0) -- (2.5cm,0);
+     \node[anchor=west, font=\fontsize{10}{12}\selectfont\color{titleMid}]
+       at (2.7cm,0) {\thecontentspage};
+   }%
+  }
+  \addvspace{2pt}
+
+% ── Subsubsection entries in TOC ──
+\titlecontents{subsubsection}[32pt]
+  {\addvspace{3pt}\fontsize{10}{12}\selectfont\color{titleMid}}
+  {}
+  {}
+  {\hspace{1em}%
+   \tikz[baseline=-0.5ex]{
+     \draw[titleMid!25, line width=0.3pt] (0,0) -- (2cm,0);
+     \node[anchor=west, font=\fontsize{9}{11}\selectfont\color{titleMid}]
+       at (2.2cm,0) {\thecontentspage};
+   }%
+  }
+
+% ══════════════════════════════════════════════════════════
+% CHAPTER PAGE: Decorative full-page opener
+% ══════════════════════════════════════════════════════════
+\newcommand{\chapterpage}[2]{%
+  % #1 = Chapter number
+  % #2 = Chapter title
+  \clearpage
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture, overlay]
+    % ── Full page dark background ──
+    \fill[titleDark]
+      (current page.north west) rectangle (current page.south east);
+
+    % ── Large chapter number watermark ──
+    \node[anchor=south east,
+          font=\fontsize{160}{160}\selectfont\bfseries,
+          text=white, opacity=0.06]
+      at ([xshift=-20pt, yshift=20pt]current page.south east) {#1};
+
+    % ── Accent rule at ~45% ──
+    \draw[titleRule, line width=0.4pt]
+      ([xshift=40pt, yshift=-0.42\paperheight]current page.north west)
+      -- ([xshift=-40pt, yshift=-0.42\paperheight]current page.north east);
+
+    % ── "Chapter N" label ──
+    \node[anchor=south west, text width=0.7\paperwidth]
+      at ([xshift=0.14\paperwidth, yshift=0.06\paperheight]current page.center)
+      {{\fontsize{11}{13}\selectfont\color{titleMid}%
+        CHAPTER\hspace{8pt}\fontsize{13}{15}\selectfont\color{titleLight}#1}};
+
+    % ── Chapter title ──
+    \node[anchor=north west, text width=0.7\paperwidth, align=flush left]
+      at ([xshift=0.14\paperwidth, yshift=0.08\paperheight]current page.center)
+      {{\fontsize{28}{34}\selectfont\bfseries\color{white}#2}};
+
+    % ── Thin decorative line under title ──
+    \draw[titleRule, line width=1.2pt]
+      ([xshift=0.14\paperwidth, yshift=0.005\paperheight]current page.center)
+      -- ([xshift=0.55\paperwidth, yshift=0.005\paperheight]current page.center);
+
+  \end{tikzpicture}
+  \clearpage
+}
+
+% ══════════════════════════════════════════════════════════
+% HEADERS / FOOTERS
+% ══════════════════════════════════════════════════════════
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{%
+  {\fontsize{8}{10}\selectfont\color{titleMid}\leftmark}}
+\fancyhead[R]{%
+  {\fontsize{8}{10}\selectfont\color{titleMid}%
+    A Comprehensive Study of Distributed Systems}}
+\fancyfoot[C]{%
+  {\fontsize{8}{10}\selectfont\color{titleMid}%
+    \rule{2cm}{0.3pt}\hspace{6pt}\thepage\hspace{6pt}\rule{2cm}{0.3pt}}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ─── Begin document ───
+\begin{document}
+
+% ══════════════════════════════════════════════════════════
+% TOC PAGE
+% ══════════════════════════════════════════════════════════
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  % ── Top accent bar (matching light title page) ──
+  \fill[titleDark]
+    (current page.north west)
+    rectangle ([yshift=-6pt]current page.north east);
+  % ── Left accent stripe ──
+  \fill[titleRule]
+    ([xshift=50pt]current page.north west)
+    rectangle ([xshift=54pt]current page.south west);
+\end{tikzpicture}
+
+\vspace{18pt}
+\hspace{22pt}\tableofcontents
+
+% ══════════════════════════════════════════════════════════
+% CHAPTER 1
+% ══════════════════════════════════════════════════════════
+\chapterpage{1}{Foundations of Distributed Systems}
+
+\section{Introduction}
+Distributed systems form the backbone of modern computing infrastructure.
+From cloud services to social networks, the ability to coordinate multiple
+autonomous machines is fundamental to scalability and reliability.
+
+\subsection{Motivation and Goals}
+The primary motivation for studying distributed systems lies in their
+ubiquity. Every time you use a web application, stream a video, or check
+your email, you are interacting with a distributed system.
+
+\subsubsection{Why Distributed?}
+Centralized systems, while simpler to reason about, face inherent
+limitations in scale, fault tolerance, and geographic distribution.
+A single point of failure can bring down an entire service.
+
+\subsubsection{Key Challenges}
+Consistency, availability, and partition tolerance form the well-known
+CAP theorem triangle, forcing system designers to make deliberate
+trade-offs.
+
+\subsection{Historical Context}
+The field has evolved from early remote procedure calls in the 1980s
+through the rise of the internet, to modern microservices architectures
+and serverless computing paradigms.
+
+\section{System Models}
+Formal models provide the theoretical foundation for reasoning about
+distributed systems. These models abstract away implementation details
+to focus on essential properties.
+
+\subsection{Synchronous vs.\ Asynchronous}
+In synchronous models, message delivery is bounded by a known delay.
+Asynchronous models make no such guarantees, making them more realistic
+but harder to reason about.
+
+\subsection{Failure Models}
+Understanding different types of failures---crash, omission, Byzantine---is
+essential for designing fault-tolerant systems that can withstand
+adversarial conditions.
+
+\subsubsection{Crash Failures}
+A crash failure occurs when a process halts prematurely and never
+recovers. This is the simplest failure model and forms the basis for
+most practical fault-tolerance mechanisms.
+
+\subsubsection{Byzantine Failures}
+Byzantine failures are the most general and most difficult to handle.
+A Byzantine process may send contradictory information to different
+parts of the system, making consensus especially challenging.
+
+% ══════════════════════════════════════════════════════════
+% CHAPTER 2
+% ══════════════════════════════════════════════════════════
+\chapterpage{2}{Consensus Algorithms}
+
+\section{The Consensus Problem}
+At the heart of every distributed system lies the challenge of getting
+independent nodes to agree on a single value or course of action, despite
+communication delays and potential failures.
+
+\subsection{FLP Impossibility}
+The seminal result by Fischer, Lynch, and Paterson (1985) proved that
+deterministic consensus is impossible in purely asynchronous systems
+with even a single failure. This impossibility result has shaped decades
+of research.
+
+\subsection{Paxos}
+Leslie Lamport's Paxos protocol is one of the most influential consensus
+algorithms. Despite its reputation for being difficult to understand,
+its core ideas are surprisingly elegant.
+
+\subsubsection{Basic Paxos}
+Basic Paxos guarantees consensus among a set of processes, provided a
+majority are responsive. It operates in two phases: prepare and accept,
+using proposal numbers to ensure safety.
+
+\subsubsection{Multi-Paxos}
+Multi-Paxos optimizes the basic protocol for sequences of decisions by
+electing a stable leader, eliminating the prepare phase for subsequent
+values and significantly improving throughput.
+
+\section{Raft}
+Raft was designed as an understandable alternative to Paxos, decomposing
+the consensus problem into independent subproblems: leader election,
+log replication, and safety.
+
+\subsection{Leader Election}
+Raft uses randomized timeouts to trigger leader elections. When a follower
+does not receive a heartbeat within its election timeout, it becomes a
+candidate and requests votes from its peers.
+
+\subsection{Log Replication}
+Once a leader is established, clients send commands to the leader, which
+appends them to its log and replicates them across followers using
+AppendEntries RPCs.
+
+% ══════════════════════════════════════════════════════════
+% CHAPTER 3
+% ══════════════════════════════════════════════════════════
+\chapterpage{3}{Fault Tolerance in Practice}
+
+\section{Replication Strategies}
+Replication is the primary mechanism for achieving fault tolerance in
+distributed systems. Different strategies offer varying trade-offs
+between consistency, performance, and complexity.
+
+\subsection{Leader-Based Replication}
+In leader-based replication, all writes go through a single leader node
+that propagates changes to followers. This simplifies consistency but
+introduces a single point of coordination.
+
+\subsection{Leaderless Replication}
+Leaderless (or quorum-based) replication allows any node to accept writes,
+using quorums to ensure consistency. Dynamo-style systems use this
+approach for high availability.
+
+\section{Failure Detection}
+Detecting failures accurately and quickly is crucial for maintaining
+system health. However, distinguishing between a failed process and a
+temporarily slow network is notoriously difficult.
+
+\subsection{Heartbeat Mechanisms}
+Most practical systems use heartbeat-based failure detection, where
+nodes periodically exchange messages. Absence of a heartbeat within
+a timeout triggers a failure suspicion.
+
+\subsection{Phi Accrual Failure Detector}
+The phi accrual failure detector improves upon simple timeouts by
+maintaining a probabilistic model of network delays, producing a
+continuous suspicion level rather than a binary alive/dead verdict.
+
+\end{document}
