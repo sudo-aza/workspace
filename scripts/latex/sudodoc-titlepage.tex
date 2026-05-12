@@ -1,0 +1,161 @@
+% sudodoc-titlepage.tex — Beautiful title page design
+% Inspired by Typst Thesis Starter: clean, minimalist, modern
+% Compile with: lualatex sudodoc-titlepage.tex (run twice for overlays)
+\documentclass[12pt]{article}
+
+% ─── Packages ───
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{graphicx}
+
+% ─── Fonts ───
+\setsansfont{Latin Modern Sans}
+\setmainfont{Latin Modern Roman}
+\setmonofont{Latin Modern Mono}
+
+% ─── Colors ───
+\definecolor{titleDark}{HTML}{1A1A2E}
+\definecolor{titleAccent}{HTML}{16213E}
+\definecolor{titleRule}{HTML}{0F3460}
+\definecolor{titleLight}{HTML}{E8E8E8}
+\definecolor{titleMid}{HTML}{888888}
+
+% ─── Geometry ───
+\geometry{paper=a4paper, margin=0pt}
+
+\begin{document}
+
+% ══════════════════════════════════════════════════════════
+% PAGE 1: Dark theme — centered, elegant
+% ══════════════════════════════════════════════════════════
+\pagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+
+  % ── Full dark background ──
+  \fill[titleDark]
+    (current page.north west) rectangle (current page.south east);
+
+  % ── Left accent stripe ──
+  \fill[titleRule]
+    ([xshift=0pt]current page.north west)
+    rectangle ([xshift=4pt]current page.south west);
+
+  % ── Thin horizontal rule at ~40% from top ──
+  \draw[titleRule, line width=0.4pt]
+    ([xshift=40pt, yshift=-0.38\paperheight]current page.north west)
+    -- ([xshift=-40pt, yshift=-0.38\paperheight]current page.north east);
+
+  % ── Title (large, white, right-aligned) ──
+  \node[anchor=south east, text width=0.72\paperwidth, align=flush right]
+    at ([xshift=-0.14\paperwidth, yshift=0.10\paperheight]current page.center)
+    {{\fontsize{28}{34}\selectfont\bfseries\color{white}%
+      A Comprehensive Study of\\Distributed Systems}};
+
+  % ── Subtitle ──
+  \node[anchor=north east, text width=0.72\paperwidth, align=flush right]
+    at ([xshift=-0.14\paperwidth, yshift=0.11\paperheight]current page.center)
+    {{\fontsize{14}{18}\selectfont\color{titleLight}%
+      Architecture, Consensus, and Fault Tolerance\\
+      in Modern Infrastructure}};
+
+  % ── Thick rule below title block ──
+  \draw[titleRule, line width=1.6pt]
+    ([xshift=0.14\paperwidth, yshift=0.04\paperheight]current page.center)
+    -- ([xshift=0.86\paperwidth, yshift=0.04\paperheight]current page.center);
+
+  % ── Author ──
+  \node[anchor=north west, text width=0.72\paperwidth]
+    at ([xshift=0.14\paperwidth, yshift=0.01\paperheight]current page.center)
+    {{\fontsize{11}{14}\selectfont\color{titleLight}Max Mustermann}};
+
+  % ── Institution ──
+  \node[anchor=north west, text width=0.72\paperwidth]
+    at ([xshift=0.14\paperwidth, yshift=-0.04\paperheight]current page.center)
+    {{\fontsize{10}{13}\selectfont\color{titleMid}%
+      Technische Universit\"at Berlin\\
+      Fakult\"at f\"ur Elektrotechnik und Informatik}};
+
+  % ── Date ──
+  \node[anchor=north west, text width=0.72\paperwidth]
+    at ([xshift=0.14\paperwidth, yshift=-0.10\paperheight]current page.center)
+    {{\fontsize{10}{13}\selectfont\color{titleMid}May 2026}};
+
+  % ── Page number ──
+  \node[anchor=south, font=\fontsize{9}{11}\selectfont, text=titleMid]
+    at ([yshift=12pt]current page.south) {i};
+
+\end{tikzpicture}
+
+% ══════════════════════════════════════════════════════════
+% PAGE 2: Light theme — left-aligned, clean
+% ══════════════════════════════════════════════════════════
+\newpage
+\begin{tikzpicture}[remember picture, overlay]
+
+  % ── White background ──
+  \fill[white]
+    (current page.north west) rectangle (current page.south east);
+
+  % ── Top accent bar ──
+  \fill[titleDark]
+    (current page.north west)
+    rectangle ([yshift=-6pt]current page.north east);
+
+  % ── Vertical colored bar on left ──
+  \fill[titleRule]
+    ([xshift=50pt]current page.north west)
+    rectangle ([xshift=54pt]current page.south west);
+
+  % ── Title (left-aligned with indent) ──
+  \node[anchor=west, text width=0.65\paperwidth, align=flush left]
+    at ([xshift=74pt, yshift=0.14\paperheight]current page.west)
+    {{\fontsize{30}{36}\selectfont\bfseries\color{titleDark}%
+      Neural Network\\Optimization}};
+
+  % ── Subtitle ──
+  \node[anchor=north west, text width=0.65\paperwidth, align=flush left]
+    at ([xshift=74pt, yshift=0.04\paperheight]current page.west)
+    {{\fontsize{13}{16}\selectfont\color{titleRule}%
+      Gradient Descent, Adaptive Learning Rates,\\
+      and Scalable Training Strategies}};
+
+  % ── Separator line ──
+  \draw[titleRule, line width=0.6pt]
+    ([xshift=74pt, yshift=-0.02\paperheight]current page.west)
+    -- ([xshift=0.72\paperwidth, yshift=-0.02\paperheight]current page.west);
+
+  % ── Author block ──
+  \node[anchor=north west, text width=0.65\paperwidth]
+    at ([xshift=74pt, yshift=-0.06\paperheight]current page.west)
+    {{\fontsize{11}{14}\selectfont\color{titleDark}\bfseries
+      Dr. Anna Schmidt}};
+
+  \node[anchor=north west, text width=0.65\paperwidth]
+    at ([xshift=74pt, yshift=-0.10\paperheight]current page.west)
+    {{\fontsize{10}{13}\selectfont\color{titleMid}%
+      Ludwig-Maximilians-Universit\"at M\"unchen}};
+
+  \node[anchor=north west, text width=0.65\paperwidth]
+    at ([xshift=74pt, yshift=-0.14\paperheight]current page.west)
+    {{\fontsize{10}{13}\selectfont\color{titleMid}%
+      Department of Computer Science}};
+
+  \node[anchor=north west, text width=0.65\paperwidth]
+    at ([xshift=74pt, yshift=-0.18\paperheight]current page.west)
+    {{\fontsize{10}{13}\selectfont\color{titleMid}May 2026}};
+
+  % ── Large decorative watermark ──
+  \node[anchor=south east,
+        font=\fontsize{120}{120}\selectfont,
+        text=titleLight, opacity=0.12]
+    at ([xshift=-10pt, yshift=10pt]current page.south east) {N};
+
+  % ── Page number ──
+  \node[anchor=south, font=\fontsize{9}{11}\selectfont, text=titleMid]
+    at ([yshift=12pt]current page.south) {ii};
+
+\end{tikzpicture}
+
+\end{document}
