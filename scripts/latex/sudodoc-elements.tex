@@ -1,0 +1,560 @@
+% sudodoc-elements.tex — Document Element Templates
+% Tables, lists, code, blockquotes, figures, descriptions
+% Compile: lualatex sudodoc-elements.tex (run TWICE for overlays)
+\documentclass[12pt]{article}
+
+% ─── Packages ───
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{enumitem}      % Load BEFORE titlesec to avoid conflict
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{parskip}
+\usepackage{calc}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ─── Fonts ───
+\setsansfont{Latin Modern Sans}
+\setmainfont{Latin Modern Roman}
+\setmonofont{Latin Modern Mono}
+
+% ─── Colors (matching title page + TOC design) ───
+\definecolor{titleDark}{HTML}{1A1A2E}
+\definecolor{titleAccent}{HTML}{16213E}
+\definecolor{titleRule}{HTML}{0F3460}
+\definecolor{titleLight}{HTML}{E8E8E8}
+\definecolor{titleMid}{HTML}{888888}
+
+% Element-specific colors
+\definecolor{tableHead}{HTML}{1A1A2E}
+\definecolor{tableHeadText}{HTML}{FFFFFF}
+\definecolor{tableAlt}{HTML}{F0F4F8}
+\definecolor{tableBorder}{HTML}{D0D8E0}
+\definecolor{codeBg}{HTML}{F5F7FA}
+\definecolor{codeFrame}{HTML}{D0D8E0}
+\definecolor{codeKeyword}{HTML}{0F3460}
+\definecolor{codeString}{HTML}{2E7D32}
+\definecolor{codeComment}{HTML}{90A4AE}
+\definecolor{quoteBg}{HTML}{F8F4F0}
+\definecolor{quoteBorder}{HTML}{0F3460}
+\definecolor{quoteText}{HTML}{3E3E3E}
+\definecolor{bulletColor}{HTML}{0F3460}
+\definecolor{enumColor}{HTML}{0F3460}
+\definecolor{descTerm}{HTML}{0F3460}
+\definecolor{descText}{HTML}{3E3E3E}
+\definecolor{captionLabel}{HTML}{0F3460}
+\definecolor{captionText}{HTML}{666666}
+
+% ─── Geometry ───
+\geometry{
+  paper=a4paper,
+  top=30mm,
+  bottom=30mm,
+  left=30mm,
+  right=25mm,
+  headheight=15pt,
+}
+
+% ══════════════════════════════════════════════════════════
+% SECTIONING (from sudodoc-toc)
+% ══════════════════════════════════════════════════════════
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{titleDark}}
+  {}{0pt}
+  {\vspace{6pt}%
+   \begin{tikzpicture}[baseline=(title.base)]
+     \node[anchor=west, inner sep=0pt] (title) {\insertsection};
+     \draw[titleRule, line width=1.2pt]
+       ([yshift=-3pt]title.south west) -- ([yshift=-3pt]title.south east);
+   \end{tikzpicture}%
+  }
+  [\vspace{2pt}]
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{titleRule}}
+  {}{0pt}
+  {\hspace{4pt}%
+   \tikz[baseline=(num.base)]{
+     \node[fill=titleRule, text=white, rounded corners=2pt,
+           inner xsep=6pt, inner ysep=2pt,
+           font=\footnotesize\bfseries] (num)
+       {\thesubsection};
+   }%
+   \hspace{6pt}\insertsubsection%
+  }
+  [\vspace{2pt}]
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{titleMid}}
+  {}{0pt}
+  {\hspace{14pt}{\color{titleRule}\textbullet}\hspace{8pt}\insertsubsubsection}
+  [\vspace{1pt}]
+
+\titlespacing{\section}{0pt}{24pt plus 4pt minus 2pt}{12pt plus 2pt minus 1pt}
+\titlespacing{\subsection}{0pt}{18pt plus 3pt minus 1pt}{8pt plus 1pt minus 1pt}
+\titlespacing{\subsubsection}{0pt}{12pt plus 2pt minus 1pt}{6pt}
+
+% ══════════════════════════════════════════════════════════
+% TABLES: booktabs + alternating rows
+% ══════════════════════════════════════════════════════════
+
+% ── Alternating row colors ──
+\newcommand{\rowcolorhead}{\rowcolor{tableHead}}   % dark header
+\newcommand{\rowcoloralt}{\rowcolor{tableAlt}}      % light alt row
+\arrayrulecolor{tableBorder}
+
+% ── Caption style (simple) ──
+\captionsetup{
+  tableposition=top,
+  font=small,
+  labelfont=bf,
+  labelsep=period,
+  skip=8pt,
+  belowskip=6pt,
+}
+
+% ══════════════════════════════════════════════════════════
+% LISTS: Custom bullets, numbers, descriptions
+% ══════════════════════════════════════════════════════════
+
+% ── Itemize: styled bullets (no TikZ to avoid enumitem conflict) ──
+\setitemize{
+  itemsep=6pt,
+  parsep=2pt,
+  topsep=8pt,
+  partopsep=4pt,
+  leftmargin=18pt,
+  labelsep=8pt,
+}
+% Level 1: filled triangle
+\renewcommand{\labelitemi}{\textcolor{bulletColor}{\small$\blacktriangleright$}}
+% Level 2: filled circle
+\renewcommand{\labelitemii}{\textcolor{titleRule}{\raisebox{0.2ex}{\tiny$\blacksquare$}}}
+% Level 3: open square
+\renewcommand{\labelitemiii}{\textcolor{titleMid}{\raisebox{0.1ex}{\scriptsize$\square$}}}
+
+% ── Enumerate: styled number badges (no TikZ to avoid enumitem conflict) ──
+\setenumerate{
+  itemsep=6pt,
+  parsep=2pt,
+  topsep=8pt,
+  partopsep=4pt,
+  leftmargin=24pt,
+  labelsep=8pt,
+}
+% Level 1: number in colored badge
+\renewcommand{\labelenumi}{%
+  \colorbox{enumColor}{\textcolor{white}{\footnotesize\bfseries\hspace{4pt}\theenumi\hspace{4pt}}}%
+}
+% Level 2: letter in gray badge
+\renewcommand{\labelenumii}{%
+  \colorbox{titleMid}{\textcolor{white}{\footnotesize\bfseries\hspace{4pt}\theenumii\hspace{4pt}}}%
+}
+
+% ── Description ──
+\setdescription{
+  itemsep=8pt,
+  parsep=2pt,
+  topsep=8pt,
+  leftmargin=0pt,
+  labelsep=12pt,
+  font={\bfseries\color{descTerm}},
+}
+
+% ══════════════════════════════════════════════════════════
+% CODE LISTINGS: Syntax highlighting
+% ══════════════════════════════════════════════════════════
+\lstdefinestyle{sudodoc}{
+  backgroundcolor=\color{codeBg},
+  basicstyle=\ttfamily\small\color{titleDark},
+  keywordstyle=\bfseries\color{codeKeyword},
+  stringstyle=\color{codeString},
+  commentstyle=\itshape\color{codeComment},
+  numberstyle=\tiny\color{titleMid},
+  numbers=left,
+  numbersep=10pt,
+  frame=l,
+  framerule=2pt,
+  rulecolor=\color{codeKeyword},
+  xleftmargin=16pt,
+  framexleftmargin=16pt,
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4,
+  showstringspaces=false,
+  captionpos=b,
+  aboveskip=12pt,
+  belowskip=6pt,
+  columns=fullflexible,
+  keepspaces=true,
+}
+\lstset{style=sudodoc}
+
+% ── Code caption style ──
+\captionsetup[lstlisting]{
+  font=small,
+  labelfont=bf,
+  labelsep=period,
+}
+
+% ══════════════════════════════════════════════════════════
+% BLOCKQUOTES: tcolorbox
+% ══════════════════════════════════════════════════════════
+\newtcolorbox{blockquote}{
+  enhanced,
+  colback=quoteBg,
+  colframe=quoteBorder,
+  boxrule=0pt,
+  leftrule=3pt,
+  arc=0pt,
+  outer arc=0pt,
+  left=14pt,
+  right=10pt,
+  top=10pt,
+  bottom=10pt,
+  fontupper=\itshape\color{quoteText}\small,
+  before upper={\tikz[baseline=-0.5ex]{
+    \node[font=\Large\color{quoteBorder}] at (0,0) {``};
+  }\hspace{4pt}},
+  after upper={\hspace{4pt}\tikz[baseline=-0.5ex]{
+    \node[font=\Large\color{quoteBorder}] at (0,0) {''};
+  }},
+}
+
+% ══════════════════════════════════════════════════════════
+% HEADERS / FOOTERS
+% ══════════════════════════════════════════════════════════
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{%
+  {\fontsize{8}{10}\selectfont\color{titleMid}\leftmark}}
+\fancyhead[R]{%
+  {\fontsize{8}{10}\selectfont\color{titleMid}%
+    Document Element Templates}}
+\fancyfoot[C]{%
+  {\fontsize{8}{10}\selectfont\color{titleMid}%
+    \rule{2cm}{0.3pt}\hspace{6pt}\thepage\hspace{6pt}\rule{2cm}{0.3pt}}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ─── Begin document ───
+\begin{document}
+
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[titleDark]
+    (current page.north west)
+    rectangle ([yshift=-6pt]current page.north east);
+  \fill[titleRule]
+    ([xshift=50pt]current page.north west)
+    rectangle ([xshift=54pt]current page.south west);
+\end{tikzpicture}
+
+\vspace{18pt}
+{\fontsize{24}{28}\selectfont\bfseries\color{titleDark}
+  \hspace{22pt}Document Elements}\\[12pt]
+{\fontsize{11}{13}\selectfont\color{titleMid}
+  \hspace{22pt}Tables, Lists, Code, Blockquotes \& Figures}
+
+\vspace{20pt}
+
+% ══════════════════════════════════════════════════════════
+% SECTION 1: TABLES
+% ══════════════════════════════════════════════════════════
+\section{Tables}
+
+\subsection{Booktabs Table with Alternating Rows}
+A clean, booktabs-styled table with dark header and alternating row colors
+for improved readability in longer data sets.
+
+\vspace{4pt}
+\begin{table}[h]
+\centering
+\caption{Comparison of Consensus Algorithms}
+\begin{tabular}{@{} l c c c @{}}
+\toprule
+\rowcolorhead
+\textcolor{tableHeadText}{\textbf{Algorithm}} &
+\textcolor{tableHeadText}{\textbf{Consensus}} &
+\textcolor{tableHeadText}{\textbf{Tolerance}} &
+\textcolor{tableHeadText}{\textbf{Complexity}} \\
+\midrule
+Paxos        & Safety    & $f < n/2$       & Moderate \\
+\rowcoloralt
+Raft         & Safety    & $f < n/2$       & Low      \\
+Viewstamped  & Safety    & $f < n/2$       & Moderate \\
+\rowcoloralt
+PBFT         & Safety    & $f < n/3$       & High     \\
+Zab          & Total     & $f < n/2$       & Moderate \\
+\rowcoloralt
+Tendermint   & Total     & $f < n/3$       & Moderate \\
+HotStuff     & Total     & $f < n/3$       & Low      \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Multi-Column Table with Merged Cells}
+Tables can span multiple columns and merge cells for grouped data presentation
+using the \texttt{multirow} package alongside booktabs.
+
+\vspace{4pt}
+\begin{table}[h]
+\centering
+\caption{Network Protocols by Layer}
+\begin{tabular}{@{} l l l c @{}}
+\toprule
+\rowcolorhead
+\textcolor{tableHeadText}{\textbf{Layer}} &
+\textcolor{tableHeadText}{\textbf{Protocol}} &
+\textcolor{tableHeadText}{\textbf{Transport}} &
+\textcolor{tableHeadText}{\textbf{Reliable}} \\
+\midrule
+\multirow{3}{*}{Application} & HTTP  & TCP & Yes \\
+\rowcoloralt
+                           & gRPC  & HTTP/2 & Yes \\
+                           & DNS   & UDP & No  \\
+\midrule
+\multirow{2}{*}{Transport}  & TCP   & ---  & Yes \\
+\rowcoloralt
+                           & QUIC  & UDP  & Yes \\
+\midrule
+\rowcoloralt
+\multirow{2}{*}{Network}    & IPv4  & ---  & No  \\
+                           & IPv6  & ---  & No  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════
+% SECTION 2: LISTS
+% ══════════════════════════════════════════════════════════
+\section{Lists}
+
+\subsection{Itemize (Unordered)}
+Custom-styled bullet points with three nesting levels, each using
+a distinct TikZ-drawn marker for visual hierarchy.
+
+\begin{itemize}
+  \item Fault tolerance ensures system availability during failures
+    \begin{itemize}
+      \item Redundancy is the primary mechanism
+        \begin{itemize}
+          \item Active-passive and active-active configurations
+          \item Geographic distribution across data centers
+        \end{itemize}
+      \item Health monitoring provides early failure detection
+      \item Automatic failover minimizes downtime
+    \end{itemize}
+  \item Consistency models define data visibility guarantees
+  \item Scalability enables handling growing workloads
+    \begin{itemize}
+      \item Horizontal scaling adds more machines
+      \item Vertical scaling increases machine capacity
+    \end{itemize}
+\end{itemize}
+
+\subsection{Enumerate (Ordered)}
+Numbered lists with styled badges, useful for sequential processes
+or ranked information presentation.
+
+\begin{enumerate}
+  \item Client sends request to the leader node
+    \begin{enumerate}
+      \item Leader appends entry to its local log
+      \item Leader increments log index and term
+    \end{enumerate}
+  \item Leader replicates entry to follower nodes
+  \item Followers acknowledge successful append
+  \item Leader commits entry once majority acknowledges
+  \item Leader notifies client of successful commit
+\end{enumerate}
+
+\subsection{Description Lists}
+Term-definition pairs with bold, colored terms for quick scanning.
+Ideal for glossaries, feature lists, or configuration options.
+
+\begin{description}
+  \item[Consensus] Agreement among distributed nodes on a single
+    data value or system state, despite failures and network delays.
+  \item[Quorum] The minimum number of nodes required to agree before
+    an operation is considered successful, typically a majority.
+  \item[Leader Election] The process by which a distributed system
+    selects a coordinator node to manage replication and coordination.
+  \item[Heartbeat] A periodic message exchanged between nodes to
+    signal liveness and detect failures within bounded time.
+  \item[Partition Tolerance] The ability of a system to continue
+    operating despite network partitions that isolate subsets of nodes.
+\end{description}
+
+% ══════════════════════════════════════════════════════════
+% SECTION 3: CODE LISTINGS
+% ══════════════════════════════════════════════════════════
+\section{Code Listings}
+
+\subsection{Syntax Highlighting}
+Code blocks with language-aware syntax highlighting, line numbers,
+and a subtle left accent bar. Built on the \texttt{listings} package.
+
+\begin{lstlisting}[language=Python, caption={Raft-style consensus implementation}]
+class RaftNode:
+    def __init__(self, node_id: int, peers: list):
+        self.id = node_id
+        self.peers = peers
+        self.state = "follower"
+        self.term = 0
+        self.log = []
+        self.commit_index = 0
+        self.voted_for = None  # None means no vote cast
+
+    def request_vote(self, candidate_term: int):
+        """Handle incoming RequestVote RPC."""
+        if candidate_term > self.term:
+            self.term = candidate_term
+            self.voted_for = None
+            self.state = "follower"
+        return self._grant_vote(candidate_term)
+
+    def append_entries(self, leader_term: int):
+        """Handle incoming AppendEntries (heartbeat)."""
+        if leader_term >= self.term:
+            self.term = leader_term
+            self.state = "follower"
+            return True  # Accept entry
+        return False  # Reject stale leader
+\end{lstlisting}
+
+\subsection{Configuration File Example}
+Inline code with monospaced font is also styled consistently.
+Configuration values use \texttt{key = value} syntax.
+The \texttt{\textbackslash texttt\{\}} command provides inline
+monospaced text.
+
+\begin{lstlisting}[language={}, caption={Cluster configuration file}]
+# raft-cluster.toml
+[cluster]
+node_id = "node-1"
+data_dir = "/var/lib/raft"
+bind_addr = "0.0.0.0:7946"
+
+[replication]
+snapshot_interval = "5m"
+max_log_entries = 65536
+heartbeat_timeout = "500ms"
+election_timeout = "1.5s"
+
+[storage]
+backend = "boltdb"
+wal_dir = "/var/lib/raft/wal"
+snapshot_dir = "/var/lib/raft/snap"
+\end{lstlisting}
+
+% ══════════════════════════════════════════════════════════
+% SECTION 4: BLOCKQUOTES
+% ══════════════════════════════════════════════════════════
+\section{Blockquotes}
+
+Styled blockquotes with a left accent bar and warm background,
+suitable for citations, callouts, or important remarks.
+
+\begin{blockquote}
+There are only two hard things in Computer Science: cache invalidation
+and naming things. --- Phil Karlton
+\end{blockquote}
+
+\vspace{6pt}
+
+\begin{blockquote}
+A distributed system is one in which the failure of a computer you
+didn't even know existed can render your own computer unusable.
+--- Leslie Lamport
+\end{blockquote}
+
+\vspace{6pt}
+
+\begin{blockquote}
+Any sufficiently complicated C or Fortran program contains an ad hoc,
+informally-specified, bug-ridden, slow implementation of half of
+Common Lisp. --- Greenspun's Tenth Rule
+\end{blockquote}
+
+% ══════════════════════════════════════════════════════════
+% SECTION 5: FIGURES (placeholder)
+% ══════════════════════════════════════════════════════════
+\section{Figures}
+
+\subsection{Figure with Caption}
+A figure environment with a styled caption. Since no image files are
+available in this demo, we use a TikZ-drawn placeholder.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+  \fill[codeBg] (0,0) rectangle (8,3.5);
+  \draw[codeBorder, line width=0.6pt, rounded corners=3pt]
+    (0,0) rectangle (8,3.5);
+  \node[font=\footnotesize\ttfamily\color{titleMid}] at (4,3.1)
+    {figure-placeholder.png};
+  % Simulated architecture diagram
+  \node[draw=titleRule, fill=white, rounded corners=2pt,
+        minimum width=1.4cm, minimum height=0.7cm,
+        font=\footnotesize\bfseries\color{titleDark}] (c) at (2,1.75) {Client};
+  \node[draw=titleRule, fill=white, rounded corners=2pt,
+        minimum width=1.4cm, minimum height=0.7cm,
+        font=\footnotesize\bfseries\color{titleDark}] (l) at (4,1.75) {Leader};
+  \node[draw=titleRule, fill=white, rounded corners=2pt,
+        minimum width=1.4cm, minimum height=0.7cm,
+        font=\footnotesize\bfseries\color{titleDark}] (f1) at (6,2.5) {F1};
+  \node[draw=titleRule, fill=white, rounded corners=2pt,
+        minimum width=1.4cm, minimum height=0.7cm,
+        font=\footnotesize\bfseries\color{titleDark}] (f2) at (6,1.75) {F2};
+  \node[draw=titleRule, fill=white, rounded corners=2pt,
+        minimum width=1.4cm, minimum height=0.7cm,
+        font=\footnotesize\bfseries\color{titleDark}] (f3) at (6,1.0) {F3};
+  \draw[->, titleRule, thick] (c) -- (l);
+  \draw[->, titleRule, thick] (l) -- (f1);
+  \draw[->, titleRule, thick] (l) -- (f2);
+  \draw[->, titleRule, thick] (l) -- (f3);
+  \node[font=\tiny\color{titleMid}] at (4,0.4) {Raft Cluster Topology};
+\end{tikzpicture}
+\caption{A typical Raft cluster with one leader and three followers
+  handling client requests via log replication.}
+\end{figure}
+
+\subsection{Mathematical Content}
+Mathematical expressions and equations are rendered with consistent
+styling using the \texttt{amsmath} package.
+
+The CAP theorem states that a distributed data store can simultaneously
+provide at most two of the following three guarantees:
+
+\begin{description}
+  \item[Consistency] Every read receives the most recent write or an error
+  \item[Availability] Every request receives a response (not an error)
+  \item[Partition Tolerance] System continues despite network partitions
+\end{description}
+
+The probability of quorum agreement in a system of $n$ nodes
+tolerating $f$ failures is expressed as:
+
+\vspace{4pt}
+\[
+  Q(n, f) = \binom{n}{f+1} \cdot p^{f+1} \cdot (1-p)^{n-f-1}
+\]
+
+where $p$ is the probability that any single node responds within
+the timeout window and $f$ is the maximum number of tolerated failures
+in a majority-based quorum system.
+
+\end{document}
