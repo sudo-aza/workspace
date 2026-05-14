@@ -58,10 +58,10 @@ echo "[4/4] Installing additional packages..."
 PACKAGES=(
     pgf fontspec geometry titlesec tocloft booktabs enumitem xcolor
     hyperref microtype koma-script calc etoolbox listings caption
-    luatexbase luaotfload metalogo mdframed tcolorbox
+    luatexbase luaotfload metalogo mdframed tcolorbox tikzfill
     parskip setspace fancyhdr lastpage bookmark
     amsmath amssymb mathtools unicode-math fontawesome5
-    sourcecodepro
+    sourcecodepro colortbl multirow
 )
 
 for pkg in "${PACKAGES[@]}"; do
